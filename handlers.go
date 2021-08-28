@@ -2263,6 +2263,11 @@ func (s *Server) handleGetViewer(c echo.Context, u *User) error {
 		return err
 	}
 
+	var at AuthToken
+	if err := s.DB.Find(&at, "\"user\" = ? AND token = ?", u.ID, c.Param("key")).Error; err != nil {
+		return err
+	}
+
 	return c.JSON(200, &util.ViewerResponse{
 		ID:       u.ID,
 		Username: u.Username,
@@ -2279,6 +2284,7 @@ func (s *Server) handleGetViewer(c echo.Context, u *User) error {
 			DealMakingDisabled:    s.CM.dealMakingDisabled(),
 			UploadEndpoints:       uep,
 		},
+		AuthExpiry: at.Expiry,
 	})
 }
 
